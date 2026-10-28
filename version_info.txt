@@ -1,8 +1,8 @@
 # PyInstaller Windows version resource (shown in Explorer > Properties > Details)
 VSVersionInfo(
   ffi=FixedFileInfo(
-    filevers=(2, 0, 0, 0),
-    prodvers=(2, 0, 0, 0),
+    filevers=(2, 0, 1, 0),
+    prodvers=(2, 0, 1, 0),
     mask=0x3f,
     flags=0x0,
     OS=0x40004,
@@ -15,11 +15,11 @@ VSVersionInfo(
       StringTable('040904B0', [
         StringStruct('CompanyName', 'entropytwo-ai'),
         StringStruct('FileDescription', 'Barcode Splitter - split PDFs by invoice-number barcode'),
-        StringStruct('FileVersion', '2.0.0'),
+        StringStruct('FileVersion', '2.0.1'),
         StringStruct('InternalName', 'barcode_splitter'),
         StringStruct('OriginalFilename', 'barcode_splitter.exe'),
         StringStruct('ProductName', 'Invoice Number Barcode Splitter'),
-        StringStruct('ProductVersion', '2.0.0')
+        StringStruct('ProductVersion', '2.0.1')
       ])
     ]),
     VarFileInfo([VarStruct('Translation', [1033, 1200])])

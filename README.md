@@ -27,10 +27,23 @@
 
 ## ⬇️ Download
 
-Grab the ready-to-run **`barcode_splitter.exe`** from the [Releases page](https://github.com/entropytwo-ai/invoice-number-barcode-splitter/releases/latest).
-It is a single self-contained file: Python, the ZBar DLLs and the Visual C++ runtimes are bundled inside, so nothing else needs to be installed. Just double-click it.
+1. Download **`barcode_splitter-vX.Y.Z-windows-x64.zip`** from the [Releases page](https://github.com/entropytwo-ai/invoice-number-barcode-splitter/releases/latest).
+2. Right-click the zip → **Extract All…** (don't run it from inside the zip).
+3. Open the extracted `barcode_splitter` folder and double-click **`barcode_splitter.exe`**.
+
+Python, the ZBar DLLs and the Visual C++ runtimes are all bundled in the folder (in `_internal\`), so nothing else needs to be installed. Keep `barcode_splitter.exe` and `_internal\` together; you can put a shortcut to the exe on your desktop.
 
 > Windows SmartScreen may warn about an unsigned app the first time — choose **More info → Run anyway**.
+
+<details>
+<summary><b>Why a folder instead of a single .exe? (antivirus false positives)</b></summary>
+
+v2.0.0 shipped as a single-file exe built with PyInstaller's stock bootloader. That bootloader is shared by huge numbers of programs, including real malware, so machine-learning scanners sometimes flag *any* app that contains it. VirusTotal showed 3 of ~70 vendors flagging v2.0.0, which is a typical false positive for PyInstaller apps.
+
+From v2.0.1 the release is built with a bootloader **compiled from source** and in **folder (`--onedir`) mode**, which has no self-extracting payload. Before publishing, the release exe was uploaded to VirusTotal; the link and result are in the release notes.
+
+If your antivirus still quarantines it, report it as a false positive to that vendor (e.g. Microsoft: <https://www.microsoft.com/wdsi/filesubmission>). Code-signing the exe would be the permanent fix.
+</details>
 
 <sub>[↑ Back to top](#top)</sub>
 
@@ -185,14 +198,17 @@ build.bat
 which installs `requirements.txt` and runs:
 
 ```bat
-pyinstaller --clean --noconfirm --onefile --noconsole --name barcode_splitter --version-file version_info.txt ^
+pyinstaller --clean --noconfirm --onedir --noconsole --name barcode_splitter --version-file version_info.txt ^
   --add-binary "libzbar-64.dll;." --add-binary "libiconv.dll;." ^
   --add-binary "redist\MSVCR120.dll;." --add-binary "redist\MSVCP140.dll;." barcode_splitter.py
 ```
 
-**On Linux** (cross-build with Wine + Windows Python 3.10): `./build_exe_wine.sh`
+**On Linux** (cross-build with Wine + Windows Python 3.10 + mingw-w64): `./build_exe_wine.sh`. This also **compiles PyInstaller's bootloader from source** (to avoid antivirus false positives) and creates the release zip.
 
-The executable is written to `dist/barcode_splitter.exe`. Built binaries are git-ignored; releases are published on the Releases page.
+Output goes to `dist/barcode_splitter/` (the exe plus its `_internal\` folder). Ship the **whole folder** (zipped). Built binaries are git-ignored; releases are published on the Releases page.
+
+> To get the same source-built bootloader on Windows, install Visual Studio Build Tools (C++), then run
+> `set PYINSTALLER_COMPILE_BOOTLOADER=1` and `pip install --force-reinstall --no-binary pyinstaller pyinstaller` before `build.bat`.
 
 **Why `redist/`?** `libzbar-64.dll` depends on the Visual C++ 2013 runtime (`MSVCR120.dll`) and PyMuPDF depends on `MSVCP140.dll`. Bundling these Microsoft-signed redistributable DLLs means the exe works on PCs that don't have the VC++ redistributables installed.
 
@@ -218,6 +234,9 @@ The executable is written to `dist/barcode_splitter.exe`. Built binaries are git
 - `load_config` survives malformed `settings.json`; `save_config` handles write errors
 - Graceful message when the input folder has no PDFs
 - "Use last folder?" is only asked when a valid last folder exists
+
+**Packaging (v2.0.1)**
+- Release is now a zip of the app folder (`--onedir`) built with a from-source PyInstaller bootloader, to stop antivirus false positives on the single-file v2.0.0 exe
 
 **Packaging (v2.0.0 release)**
 - Prebuilt `barcode_splitter.exe` published on GitHub Releases
@@ -258,10 +277,11 @@ The executable is written to `dist/barcode_splitter.exe`. Built binaries are git
 
 | Problem | Fix |
 |---------|-----|
-| `Unable to find zbar shared library` / missing `MSVCR120.dll` | When running from source, install Microsoft's *Visual C++ Redistributable for Visual Studio 2013 (x64)* or copy `redist\MSVCR120.dll` next to the script. (The prebuilt exe already bundles it.) |
+| `Unable to find zbar shared library` / missing `MSVCR120.dll` | When running from source, install Microsoft's *Visual C++ Redistributable for Visual Studio 2013 (x64)* or copy `redist\MSVCR120.dll` next to the script. (The release build already bundles it.) |
 | `ImportError: Unable to find zbar shared library` | Make sure `libzbar-64.dll` and `libiconv.dll` are beside the script/exe and not renamed. |
 | No barcodes detected | Check scan quality; try raising `DPI`; confirm the symbology is in `ALLOWED_BARCODE_TYPES`. |
 | A file shows `0 PDF(s)` in the summary | No valid barcode was found, or the file errored — check the log line marked `[ERR]`. |
+| Antivirus / Defender quarantines the exe | False positive from the PyInstaller bootloader; use v2.0.1 or later, or report it to the vendor (see [Download](#download)). |
 | `Archive failed` warning | The file is open in another program; close it and re-run. |
 | Settings not remembered | Ensure the working directory is writable so `settings.json` can be saved. |
 | pyzbar errors on new Python | Downgrade to Python 3.10.x. |
