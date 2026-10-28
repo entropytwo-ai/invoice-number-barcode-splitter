@@ -2,6 +2,15 @@
 
 > Split multi-page PDFs into one PDF per barcode value — with a classic black-and-green terminal look.
 
+![Barcode Splitter running on Windows](screenshot.png)
+
+## ⬇️ Download
+
+Grab the ready-to-run **`barcode_splitter.exe`** from the [Releases page](https://github.com/entropytwo-ai/invoice-number-barcode-splitter/releases/latest).
+It is a single self-contained file: Python, the ZBar DLLs and the Visual C++ runtimes are bundled inside, so nothing else needs to be installed. Just double-click it.
+
+> Windows SmartScreen may warn about an unsigned app the first time — choose **More info → Run anyway**.
+
 ---
 
 ## Overview
@@ -116,13 +125,27 @@ Tunable constants at the top of `barcode_splitter.py`:
 
 ---
 
-## 📦 Packaging
+## 📦 Building the .exe
 
-```bash
-pyinstaller --clean --onefile --noconsole --add-binary "libzbar-64.dll;." --add-binary "libiconv.dll;." barcode_splitter.py
+**On Windows** (Python 3.10.x, 64-bit) — just run:
+
+```bat
+build.bat
 ```
 
-The executable is written to `dist/barcode_splitter.exe`. Built binaries are git-ignored.
+which installs `requirements.txt` and runs:
+
+```bat
+pyinstaller --clean --noconfirm --onefile --noconsole --name barcode_splitter --version-file version_info.txt ^
+  --add-binary "libzbar-64.dll;." --add-binary "libiconv.dll;." ^
+  --add-binary "redist\MSVCR120.dll;." --add-binary "redist\MSVCP140.dll;." barcode_splitter.py
+```
+
+**On Linux** (cross-build with Wine + Windows Python 3.10): `./build_exe_wine.sh`
+
+The executable is written to `dist/barcode_splitter.exe`. Built binaries are git-ignored; releases are published on the Releases page.
+
+**Why `redist/`?** `libzbar-64.dll` depends on the Visual C++ 2013 runtime (`MSVCR120.dll`) and PyMuPDF depends on `MSVCP140.dll`. Bundling these Microsoft-signed redistributable DLLs means the exe works on PCs that don't have the VC++ redistributables installed.
 
 ---
 
@@ -142,6 +165,15 @@ The executable is written to `dist/barcode_splitter.exe`. Built binaries are git
 - `load_config` survives malformed `settings.json`; `save_config` handles write errors
 - Graceful message when the input folder has no PDFs
 - "Use last folder?" is only asked when a valid last folder exists
+
+**Packaging (v2.0.0 release)**
+- Prebuilt `barcode_splitter.exe` published on GitHub Releases
+- VC++ runtimes (`MSVCR120.dll`, `MSVCP140.dll`) bundled so the exe runs on clean PCs
+- Windows version info embedded (Explorer → Properties → Details)
+- One-click `build.bat` and Linux `build_exe_wine.sh` build scripts
+- Green-themed scrollbar (native Windows scrollbars ignore colours, so a styled ttk scrollbar is used)
+- Log uses ASCII tags (`[OK]`, `[ERR]`, `[ARCH]` …) instead of emoji, which Tk on Windows can't always draw
+- Switched from the deprecated `import fitz` to `import pymupdf`
 
 **Code quality**
 - Type annotations throughout
@@ -165,9 +197,10 @@ The executable is written to `dist/barcode_splitter.exe`. Built binaries are git
 
 | Problem | Fix |
 |---------|-----|
+| `Unable to find zbar shared library` / missing `MSVCR120.dll` | When running from source, install Microsoft's *Visual C++ Redistributable for Visual Studio 2013 (x64)* or copy `redist\MSVCR120.dll` next to the script. (The prebuilt exe already bundles it.) |
 | `ImportError: Unable to find zbar shared library` | Make sure `libzbar-64.dll` and `libiconv.dll` are beside the script/exe and not renamed. |
 | No barcodes detected | Check scan quality; try raising `DPI`; confirm the symbology is in `ALLOWED_BARCODE_TYPES`. |
-| A file shows `0 PDF(s)` in the summary | No valid barcode was found, or the file errored — check the log line marked ❌. |
+| A file shows `0 PDF(s)` in the summary | No valid barcode was found, or the file errored — check the log line marked `[ERR]`. |
 | `Archive failed` warning | The file is open in another program; close it and re-run. |
 | Settings not remembered | Ensure the working directory is writable so `settings.json` can be saved. |
 | pyzbar errors on new Python | Downgrade to Python 3.10.x. |

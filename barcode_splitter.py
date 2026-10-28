@@ -18,9 +18,9 @@ import datetime
 import threading
 from pathlib import Path
 
-import fitz  # PyMuPDF
+import pymupdf as fitz  # PyMuPDF (the legacy "fitz" import name is deprecated)
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox, ttk
 from pyzbar.pyzbar import decode
 from PIL import Image
 
@@ -97,7 +97,7 @@ def save_config(config: dict) -> None:
         with open(CONFIG_FILE, "w") as f:
             json.dump(config, f, indent=2)
     except OSError as exc:
-        print(f"⚠️  Could not save settings: {exc}")
+        print(f"[WARN] Could not save settings: {exc}")
 
 
 # ── File utilities ────────────────────────────────────────────────────────────
@@ -130,9 +130,9 @@ def move_to_archive(pdf_path: Path, input_folder: Path) -> None:
     target_path = archive_path / pdf_path.name
     try:
         shutil.move(str(pdf_path), str(target_path))
-        print(f"    🗂  Archived → {target_path}")
+        print(f"    [ARCH] Archived -> {target_path}")
     except OSError as exc:
-        print(f"    ⚠️  Archive failed for {pdf_path.name}: {exc}")
+        print(f"    [WARN] Archive failed for {pdf_path.name}: {exc}")
 
 
 def cleanup_old_archives(archive_root: Path) -> None:
@@ -146,7 +146,7 @@ def cleanup_old_archives(archive_root: Path) -> None:
             folder_date = datetime.datetime.strptime(folder.name, "%Y-%m-%d")
             if (now - folder_date).days > RETENTION_DAYS:
                 shutil.rmtree(folder)
-                print(f"    🧹 Deleted old archive: {folder.name}")
+                print(f"    [CLEAN] Deleted old archive: {folder.name}")
         except ValueError:
             continue  # Ignore non-date-named subdirectories
 
@@ -185,7 +185,7 @@ def _process_single_pdf(
 
             for b in found:
                 raw = b.data.decode("utf-8", errors="replace")
-                print(f"    ➜  Value: '{raw}', Type: {b.type}")
+                print(f"    -> Value: '{raw}', Type: {b.type}")
                 if raw and b.type in ALLOWED_BARCODE_TYPES:
                     current_barcode = raw
                     break  # First valid barcode on this page wins
@@ -199,7 +199,7 @@ def _process_single_pdf(
             filename = f"{sanitize_filename(barcode_value)}.pdf"
             out_path = dest_folder / filename
             save_pdf(pages, out_path)
-            print(f"    ✅ Saved: {filename}  ({len(pages)} page(s))")
+            print(f"    [OK] Saved: {filename}  ({len(pages)} page(s))")
 
         summary[pdf_file.name] = len(barcode_pages)
     finally:
@@ -224,29 +224,29 @@ def extract_barcodes_from_pdf(
 
     pdf_files = sorted(source_path.glob("*.pdf"))
     if not pdf_files:
-        print("⚠️  No PDF files found in the input folder.")
+        print("[WARN] No PDF files found in the input folder.")
         return str(dest_folder)
 
     summary: dict[str, int] = {}
 
     for pdf_file in pdf_files:
-        print(f"\n📄 Processing: {pdf_file.name}")
+        print(f"\n[>] Processing: {pdf_file.name}")
         try:
             _process_single_pdf(pdf_file, dest_folder, dpi, source_path, summary)
         except Exception as exc:
-            print(f"    ❌ Error processing {pdf_file.name}: {exc}")
+            print(f"    [ERR] Error processing {pdf_file.name}: {exc}")
             summary[pdf_file.name] = 0
 
     cleanup_old_archives(source_path / ARCHIVE_FOLDER_NAME)
 
-    divider = "─" * 60
+    divider = "-" * 60
     print(f"\n{divider}")
-    print("📊  Run Summary")
+    print("[#] Run Summary")
     print(divider)
     print(f"  Input files processed : {len(summary)}")
     for name, count in summary.items():
-        print(f"  {name:<40} → {count} PDF(s)")
-    print(f"\n✅  Output saved to: {dest_folder}")
+        print(f"  {name:<40} -> {count} PDF(s)")
+    print(f"\n[OK] Output saved to: {dest_folder}")
 
     return str(dest_folder)
 
@@ -304,7 +304,21 @@ def main() -> None:
     log_frame = tk.Frame(root, bg=BG_COLOR)
     log_frame.pack(expand=True, fill="both", padx=8, pady=(4, 0))
 
-    scrollbar = tk.Scrollbar(log_frame, troughcolor=BG_COLOR, bg=FG_COLOR)
+    # Native Windows scrollbars ignore colour options, so use a ttk scrollbar
+    # on the "clam" theme, which honours the green-on-black styling.
+    style = ttk.Style(root)
+    style.theme_use("clam")
+    style.configure(
+        "Green.Vertical.TScrollbar",
+        background=FG_COLOR,
+        troughcolor=BG_COLOR,
+        bordercolor=BG_COLOR,
+        arrowcolor=BG_COLOR,
+        lightcolor=FG_COLOR,
+        darkcolor=FG_COLOR,
+    )
+    style.map("Green.Vertical.TScrollbar", background=[("active", "#33FF33")])
+    scrollbar = ttk.Scrollbar(log_frame, orient="vertical", style="Green.Vertical.TScrollbar")
     scrollbar.pack(side="right", fill="y")
 
     log_box = tk.Text(
@@ -378,7 +392,7 @@ def main() -> None:
             root.after(0, on_success, result_folder)
         except Exception as exc:
             msg = f"Unexpected error: {exc}"
-            print(f"\n❌ {msg}")
+            print(f"\n[ERR] {msg}")
             root.after(0, on_error, msg)
 
     threading.Thread(target=processing_thread, daemon=True).start()
