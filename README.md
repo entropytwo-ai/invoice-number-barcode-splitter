@@ -1,8 +1,29 @@
+<a id="top"></a>
+
 # 📦 Invoice Number Barcode Splitter
 
 > Split multi-page PDFs into one PDF per barcode value — with a classic black-and-green terminal look.
 
 ![Barcode Splitter running on Windows](screenshot.png)
+
+## 📑 Table of Contents
+
+1. [⬇️ Download](#download)
+2. [Overview](#overview)
+3. [✨ Features](#features)
+4. [🖥 Requirements](#requirements)
+5. [📚 Dependencies](#dependencies)
+6. [🔌 DLL Requirements](#dll-requirements)
+7. [⚙️ Configuration](#configuration)
+8. [🚀 Usage](#usage)
+9. [📦 Building the .exe](#building-the-exe)
+10. [🆕 What's New (v2)](#whats-new-v2)
+11. [⚠️ Important Notes](#important-notes)
+12. [🛠 Troubleshooting](#troubleshooting)
+
+---
+
+<a id="download"></a>
 
 ## ⬇️ Download
 
@@ -11,7 +32,11 @@ It is a single self-contained file: Python, the ZBar DLLs and the Visual C++ run
 
 > Windows SmartScreen may warn about an unsigned app the first time — choose **More info → Run anyway**.
 
+<sub>[↑ Back to top](#top)</sub>
+
 ---
+
+<a id="overview"></a>
 
 ## Overview
 
@@ -19,7 +44,11 @@ It is a single self-contained file: Python, the ZBar DLLs and the Visual C++ run
 
 Processed input files are archived into dated folders, and archives older than **31 days** are cleaned up automatically.
 
+<sub>[↑ Back to top](#top)</sub>
+
 ---
+
+<a id="features"></a>
 
 ## ✨ Features
 
@@ -37,7 +66,11 @@ Processed input files are archived into dated folders, and archives older than *
 - **Run summary** with per-file output counts and page counts for every saved PDF
 - Packaged as a **standalone Windows executable** with PyInstaller
 
+<sub>[↑ Back to top](#top)</sub>
+
 ---
+
+<a id="requirements"></a>
 
 ## 🖥 Requirements
 
@@ -45,6 +78,8 @@ Processed input files are archived into dated folders, and archives older than *
 |------|---------|
 | OS | Windows 10 or later (64-bit) |
 | Python | **3.10.x** (see notes) |
+
+<a id="dependencies"></a>
 
 ## 📚 Dependencies
 
@@ -63,6 +98,8 @@ Pillow
 pyinstaller
 ```
 
+<a id="dll-requirements"></a>
+
 ## 🔌 DLL Requirements
 
 `pyzbar` needs the ZBar native libraries on Windows. Both DLLs are included in this repo and must sit **next to the script / executable**:
@@ -72,7 +109,11 @@ pyinstaller
 
 Source: <https://github.com/NaturalHistoryMuseum/barcode-reader-dlls/releases>
 
+<sub>[↑ Back to top](#top)</sub>
+
 ---
+
+<a id="configuration"></a>
 
 ## ⚙️ Configuration
 
@@ -97,7 +138,11 @@ Tunable constants at the top of `barcode_splitter.py`:
 | `BG_COLOR` / `FG_COLOR` | `#000000` / `#00FF00` | Theme colours |
 | `FONT_FACE` / `FONT_SIZE` | `Courier New` / `10` | Log font |
 
+<sub>[↑ Back to top](#top)</sub>
+
 ---
+
+<a id="usage"></a>
 
 ## 🚀 Usage
 
@@ -123,7 +168,11 @@ Tunable constants at the top of `barcode_splitter.py`:
 
 > Pages appearing **before the first barcode** in a PDF are intentionally skipped.
 
+<sub>[↑ Back to top](#top)</sub>
+
 ---
+
+<a id="building-the-exe"></a>
 
 ## 📦 Building the .exe
 
@@ -147,7 +196,11 @@ The executable is written to `dist/barcode_splitter.exe`. Built binaries are git
 
 **Why `redist/`?** `libzbar-64.dll` depends on the Visual C++ 2013 runtime (`MSVCR120.dll`) and PyMuPDF depends on `MSVCP140.dll`. Bundling these Microsoft-signed redistributable DLLs means the exe works on PCs that don't have the VC++ redistributables installed.
 
+<sub>[↑ Back to top](#top)</sub>
+
 ---
+
+<a id="whats-new-v2"></a>
 
 ## 🆕 What's New (v2)
 
@@ -183,7 +236,11 @@ The executable is written to `dist/barcode_splitter.exe`. Built binaries are git
 - Readable `settings.json` (`indent=2`) and a nicer run summary
 - Added `requirements.txt` and `.gitignore`
 
+<sub>[↑ Back to top](#top)</sub>
+
 ---
+
+<a id="important-notes"></a>
 
 ## ⚠️ Important Notes
 
@@ -191,7 +248,11 @@ The executable is written to `dist/barcode_splitter.exe`. Built binaries are git
 - **Use Python 3.10.x.** Python 3.13+ has known `pyzbar` compatibility issues.
 - Processing runs in a **background thread**; every GUI update is scheduled on the main thread via `root.after()`.
 
+<sub>[↑ Back to top](#top)</sub>
+
 ---
+
+<a id="troubleshooting"></a>
 
 ## 🛠 Troubleshooting
 
@@ -204,3 +265,5 @@ The executable is written to `dist/barcode_splitter.exe`. Built binaries are git
 | `Archive failed` warning | The file is open in another program; close it and re-run. |
 | Settings not remembered | Ensure the working directory is writable so `settings.json` can be saved. |
 | pyzbar errors on new Python | Downgrade to Python 3.10.x. |
+
+<sub>[↑ Back to top](#top)</sub>
