@@ -1,0 +1,4 @@
+pyzbar==0.1.9
+pymupdf
+Pillow
+pyinstaller

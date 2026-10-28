@@ -1,0 +1,17 @@
+# Compiled executable (build it locally with PyInstaller)
+*.exe
+*.spec
+dist/
+build/
+__pycache__/
+*.pyc
+*.pyo
+
+# Runtime state
+settings.json
+archive/
+
+# Virtual environments
+venv/
+.venv/
+env/
