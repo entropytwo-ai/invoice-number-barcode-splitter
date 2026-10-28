@@ -4,22 +4,65 @@
 
 > Split multi-page PDFs into one PDF per barcode value — with a classic black-and-green terminal look.
 
+> [!IMPORTANT]
+> **Your invoices must have a barcode on them.** This program uses barcodes to mark where each document begins and ends. **A barcode starts a new file, and the next barcode ends that file and starts another.** If a scan has no barcodes, nothing is split. See [How Splitting Works](#how-splitting-works).
+
 ![Barcode Splitter running on Windows](screenshot.png)
 
 ## 📑 Table of Contents
 
-1. [⬇️ Download](#download)
-2. [Overview](#overview)
-3. [✨ Features](#features)
-4. [🖥 Requirements](#requirements)
-5. [📚 Dependencies](#dependencies)
-6. [🔌 DLL Requirements](#dll-requirements)
-7. [⚙️ Configuration](#configuration)
-8. [🚀 Usage](#usage)
-9. [📦 Building the .exe](#building-the-exe)
-10. [🆕 What's New (v2)](#whats-new-v2)
-11. [⚠️ Important Notes](#important-notes)
-12. [🛠 Troubleshooting](#troubleshooting)
+1. [🔖 How Splitting Works (Barcode Demarcation)](#how-splitting-works)
+2. [⬇️ Download](#download)
+3. [Overview](#overview)
+4. [✨ Features](#features)
+5. [🖥 Requirements](#requirements)
+6. [📚 Dependencies](#dependencies)
+7. [🔌 DLL Requirements](#dll-requirements)
+8. [⚙️ Configuration](#configuration)
+9. [🚀 Usage](#usage)
+10. [📦 Building the .exe](#building-the-exe)
+11. [🆕 What's New (v2)](#whats-new-v2)
+12. [⚠️ Important Notes](#important-notes)
+13. [🛠 Troubleshooting](#troubleshooting)
+
+---
+
+<a id="how-splitting-works"></a>
+
+## 🔖 How Splitting Works (Barcode Demarcation)
+
+This program assumes **each invoice has a barcode on it** (usually on its first page). Barcodes are how the program can tell, without a person looking, **where one document in a batch scan stops and the next one starts**.
+
+The program reads the scanned PDF one page at a time, from top to bottom:
+
+1. **A barcode starts a file.** When a page has a barcode, a new output file begins with that page. The file is named after the barcode's value (e.g. `INV-501.pdf`).
+2. **Pages without a barcode belong to the current file.** They're added to the file that the last barcode started.
+3. **The next barcode ends that file and starts a new one.** The page with the new barcode becomes the first page of the next file.
+4. **The last file ends at the last page of the scan.**
+
+```text
+Scanned batch.pdf                      Output
+─────────────────                      ──────
+Page 1  [barcode INV-501]  ──┐
+Page 2                       ├──►  INV-501.pdf  (pages 1–2)
+                             ┘
+Page 3  [barcode INV-502]  ──┐
+Page 4                       │
+Page 5                       ├──►  INV-502.pdf  (pages 3–5)
+                             ┘
+Page 6  [barcode INV-503]  ─────►  INV-503.pdf  (page 6)
+```
+
+**What this means in practice:**
+
+- ⚠️ **Pages before the first barcode are skipped.** They aren't saved to any output file, so make sure the first page of the scan has a barcode.
+- ⚠️ **A scan with no readable barcodes produces no output files**, but the original is still moved to the archive folder (it isn't deleted).
+- ⚠️ **If an invoice's barcode can't be read** (missing, smudged, cut off, or too small for the scan resolution), its pages are added to the *previous* invoice's file.
+- Only these barcode types count: `CODE128`, `EAN13`, `CODE39`, `I25`. Other codes, such as QR codes, are ignored. If a page has more than one valid barcode, the first one read is used.
+- If the **same barcode value shows up more than once in one scan**, all of those sections are combined into a single file.
+- If the **same barcode value appears in two different input PDFs on the same run**, the later file overwrites the earlier one in that run's output folder.
+
+<sub>[↑ Back to top](#top)</sub>
 
 ---
 
@@ -67,7 +110,7 @@ Processed input files are archived into dated folders, and archives older than *
 
 - **Barcode-based splitting** of multi-page PDFs using `pyzbar` + `PyMuPDF`
 - **Supported symbologies:** `CODE128`, `EAN13`, `CODE39`, `I25`
-- **Smart page grouping** — pages after a barcode page belong to that barcode until a new one appears
+- **Barcode demarcation** — a barcode starts a new file, and the next barcode ends it and starts another ([details](#how-splitting-works))
 - **Daily archiving** of processed PDFs into `archive/YYYY-MM-DD/`
 - **Automatic retention cleanup** — archive folders older than 31 days are deleted
 - **Remembers your folders** — last input/output paths stored in `settings.json`
