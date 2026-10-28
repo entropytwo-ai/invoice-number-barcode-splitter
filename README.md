@@ -62,7 +62,7 @@ Page 6  [barcode INV-503]  ─────►  INV-503.pdf  (page 6)
 - If the **same barcode value shows up more than once in one scan**, all of those sections are combined into a single file.
 - If the **same barcode value appears in two different input PDFs on the same run**, the later file overwrites the earlier one in that run's output folder.
 
-<sub>[↑ Back to top](#top)</sub>
+<sub>[↑ Back to contents](#-table-of-contents)</sub>
 
 ---
 
@@ -88,7 +88,7 @@ From v2.0.1 the release is built with a bootloader **compiled from source** and 
 If your antivirus still quarantines it, report it as a false positive to that vendor (e.g. Microsoft: <https://www.microsoft.com/wdsi/filesubmission>). Code-signing the exe would be the permanent fix.
 </details>
 
-<sub>[↑ Back to top](#top)</sub>
+<sub>[↑ Back to contents](#-table-of-contents)</sub>
 
 ---
 
@@ -100,7 +100,7 @@ If your antivirus still quarantines it, report it as a false positive to that ve
 
 Processed input files are archived into dated folders, and archives older than **31 days** are cleaned up automatically.
 
-<sub>[↑ Back to top](#top)</sub>
+<sub>[↑ Back to contents](#-table-of-contents)</sub>
 
 ---
 
@@ -122,7 +122,7 @@ Processed input files are archived into dated folders, and archives older than *
 - **Run summary** with per-file output counts and page counts for every saved PDF
 - Packaged as a **standalone Windows executable** with PyInstaller
 
-<sub>[↑ Back to top](#top)</sub>
+<sub>[↑ Back to contents](#-table-of-contents)</sub>
 
 ---
 
@@ -134,6 +134,8 @@ Processed input files are archived into dated folders, and archives older than *
 |------|---------|
 | OS | Windows 10 or later (64-bit) |
 | Python | **3.10.x** (see notes) |
+
+<sub>[↑ Back to contents](#-table-of-contents)</sub>
 
 <a id="dependencies"></a>
 
@@ -154,6 +156,8 @@ Pillow
 pyinstaller
 ```
 
+<sub>[↑ Back to contents](#-table-of-contents)</sub>
+
 <a id="dll-requirements"></a>
 
 ## 🔌 DLL Requirements
@@ -165,7 +169,7 @@ pyinstaller
 
 Source: <https://github.com/NaturalHistoryMuseum/barcode-reader-dlls/releases>
 
-<sub>[↑ Back to top](#top)</sub>
+<sub>[↑ Back to contents](#-table-of-contents)</sub>
 
 ---
 
@@ -194,7 +198,7 @@ Tunable constants at the top of `barcode_splitter.py`:
 | `BG_COLOR` / `FG_COLOR` | `#000000` / `#00FF00` | Theme colours |
 | `FONT_FACE` / `FONT_SIZE` | `Courier New` / `10` | Log font |
 
-<sub>[↑ Back to top](#top)</sub>
+<sub>[↑ Back to contents](#-table-of-contents)</sub>
 
 ---
 
@@ -224,7 +228,7 @@ Tunable constants at the top of `barcode_splitter.py`:
 
 > Pages appearing **before the first barcode** in a PDF are intentionally skipped.
 
-<sub>[↑ Back to top](#top)</sub>
+<sub>[↑ Back to contents](#-table-of-contents)</sub>
 
 ---
 
@@ -255,7 +259,7 @@ Output goes to `dist/barcode_splitter/` (the exe plus its `_internal\` folder). 
 
 **Why `redist/`?** `libzbar-64.dll` depends on the Visual C++ 2013 runtime (`MSVCR120.dll`) and PyMuPDF depends on `MSVCP140.dll`. Bundling these Microsoft-signed redistributable DLLs means the exe works on PCs that don't have the VC++ redistributables installed.
 
-<sub>[↑ Back to top](#top)</sub>
+<sub>[↑ Back to contents](#-table-of-contents)</sub>
 
 ---
 
@@ -298,7 +302,7 @@ Output goes to `dist/barcode_splitter/` (the exe plus its `_internal\` folder). 
 - Readable `settings.json` (`indent=2`) and a nicer run summary
 - Added `requirements.txt` and `.gitignore`
 
-<sub>[↑ Back to top](#top)</sub>
+<sub>[↑ Back to contents](#-table-of-contents)</sub>
 
 ---
 
@@ -310,7 +314,7 @@ Output goes to `dist/barcode_splitter/` (the exe plus its `_internal\` folder). 
 - **Use Python 3.10.x.** Python 3.13+ has known `pyzbar` compatibility issues.
 - Processing runs in a **background thread**; every GUI update is scheduled on the main thread via `root.after()`.
 
-<sub>[↑ Back to top](#top)</sub>
+<sub>[↑ Back to contents](#-table-of-contents)</sub>
 
 ---
 
@@ -329,4 +333,4 @@ Output goes to `dist/barcode_splitter/` (the exe plus its `_internal\` folder). 
 | Settings not remembered | Ensure the working directory is writable so `settings.json` can be saved. |
 | pyzbar errors on new Python | Downgrade to Python 3.10.x. |
 
-<sub>[↑ Back to top](#top)</sub>
+<sub>[↑ Back to contents](#-table-of-contents)</sub>
